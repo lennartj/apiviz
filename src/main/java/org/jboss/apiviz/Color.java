@@ -23,6 +23,7 @@
 package org.jboss.apiviz;
 
 /**
+ * An enumeration of commonly used Colors.
  *
  * @author bsneade
  */
@@ -679,12 +680,18 @@ public enum Color {
     yellow4("#8b8b00"),
     yellowgreen("#9acd32");
 
+    // Internal state
     private String rgbValue;
 
-    private Color(final String rgbValue) {
+    Color(final String rgbValue) {
         this.rgbValue = rgbValue;
     }
 
+    /**
+     * Retrieves the RGB value of this Color.
+     *
+     * @return the RGB value of this Color.
+     */
     public String getRgbValue() {
         return rgbValue;
     }
@@ -702,5 +709,4 @@ public enum Color {
         final Color color = Color.valueOf(colorName.toLowerCase()); //all our enums are lowercase, so lets be nice
         return color.getRgbValue();
     }
-
 }

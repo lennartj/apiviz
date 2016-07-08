@@ -30,11 +30,25 @@ import java.io.RandomAccessFile;
 /**
  * @author The APIviz Project (apiviz-dev@lists.jboss.org)
  * @author Trustin Lee (tlee@redhat.com)
- *
  */
 public class FileUtil {
 
-    public static String readFile(File file) throws IOException {
+    public static final String NEWLINE = System.getProperty("line.separator", "\n");
+    public static final String NORMAL_FONT = "Arial";
+    public static final String ITALIC_FONT = "Arial Italic";
+
+    /**
+     * The default charset used unless another was supplied.
+     */
+    public static final String DEFAULT_CHARSET = "ISO-8859-1";
+
+    /**
+     * Reads and returns all content within the supplied file
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    public static String readFile(final File file) throws IOException {
         byte[] byteContent;
         RandomAccessFile in = new RandomAccessFile(file, "r");
         try {
@@ -48,13 +62,13 @@ public class FileUtil {
             }
         }
 
-        return new String(byteContent, "ISO-8859-1");
+        return new String(byteContent, DEFAULT_CHARSET);
     }
 
     public static void writeFile(File file, String content) throws IOException {
         FileOutputStream out = new FileOutputStream(file);
         try {
-            out.write(content.getBytes("ISO-8859-1"));
+            out.write(content.getBytes(DEFAULT_CHARSET));
         } finally {
             try {
                 out.close();

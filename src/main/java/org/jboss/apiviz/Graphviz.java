@@ -27,20 +27,51 @@ import com.sun.javadoc.RootDoc;
 import java.io.*;
 
 /**
+ * Utility class to wrap Graphviz operations.
+ *
  * @author The APIviz Project (apiviz-dev@lists.jboss.org)
  * @author Trustin Lee (tlee@redhat.com)
- *
  */
-public class Graphviz {
+public final class Graphviz {
+
+    /**
+     * Regular expression to identify a significant text line.
+     */
     public static final String GRAPHVIZ_EXECUTABLE_FIRST_LINE_CHECK = "^.*[Gg][Rr][Aa][Pp][Hh][Vv][Ii][Zz].*$";
+
+    /**
+     * The System property key defining the graphviz home.
+     */
+    public static final String HOMEDIR_SYSTEM_PROPERTY = "graphviz.home";
+
+    /**
+     * The environment key defining the graphviz home.
+     */
+    public static final String HOMEDIR_ENV_PROPERTY = "GRAPHVIZ_HOME";
 
     private static boolean homeDetermined;
     private static File home;
 
-    public static boolean isAvailable(RootDoc root) {
+    /*
+     * Hide constructor for utility classes.
+     */
+    private Graphviz() {
+        // Unused
+    }
+
+    /**
+     * Checks if the Graphviz is available for processing.
+     *
+     * @param root the RootDoc received from JavaDoc.
+     * @return true if the GraphViz installation was found.
+     */
+    public static boolean isAvailable(final RootDoc root) {
+
+        // #1) Find dot(.exe) and the Graphviz installation directory
         String executable = Graphviz.getExecutable(root);
         File home = Graphviz.getHome(root);
 
+        // #2) Fire Graphviz and determine its version.
         ProcessBuilder pb = new ProcessBuilder(executable, "-V");
         pb.redirectErrorStream(true);
         if (home != null) {
@@ -64,7 +95,7 @@ public class Graphviz {
             out.close();
 
             String line = null;
-            while((line = in.readLine()) != null) {
+            while ((line = in.readLine()) != null) {
                 if (line.matches(GRAPHVIZ_EXECUTABLE_FIRST_LINE_CHECK)) {
                     root.printNotice("Graphviz Version: " + line);
                     return true;
@@ -89,7 +120,7 @@ public class Graphviz {
                 // Shouldn't happen.
             }
 
-            for (;;) {
+            for (; ; ) {
                 try {
                     p.waitFor();
                     break;
@@ -100,36 +131,50 @@ public class Graphviz {
         }
     }
 
-    public static void writeImageAndMap(
-            RootDoc root,
-            String diagram, File outputDirectory, String filename) throws IOException {
+    /**
+     * Creates and writes PNG and MAP files from Graphviz.
+     *
+     * @param root            The active {@link RootDoc} instance.
+     * @param diagram         The diagram data to write.
+     * @param outputDirectory
+     * @param filename
+     * @throws IOException
+     */
+    public static void writeImageAndMap(final RootDoc root,
+                                        final String diagram,
+                                        final File outputDirectory,
+                                        final String filename) throws IOException {
 
-        File pngFile = new File(outputDirectory, filename + ".png");
-        File mapFile = new File(outputDirectory, filename + ".map");
+        // TODO: Check inbound arguments for sanity? (nulls, existence etc)
 
+        // #1) Ensure that the PNG and MAP files can be written to.
+        final File pngFile = new File(outputDirectory, filename + ".png");
+        final File mapFile = new File(outputDirectory, filename + ".map");
         pngFile.delete();
         mapFile.delete();
 
-        ProcessBuilder pb = new ProcessBuilder(
-                Graphviz.getExecutable(root),
+        // #2) Compile the arguments used to launch Graphviz.
+        final String dot = Graphviz.getExecutable(root);
+        final ProcessBuilder pb = new ProcessBuilder(
+                dot,
                 "-Tcmapx", "-o", mapFile.getAbsolutePath(),
-                "-Tpng",   "-o", pngFile.getAbsolutePath());
+                "-Tpng", "-o", pngFile.getAbsolutePath());
         pb.redirectErrorStream(true);
         File home = Graphviz.getHome(root);
         if (home != null) {
             pb.directory(home);
         }
 
-        Process p = pb.start();
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(p.getInputStream()));
-        Writer out = new OutputStreamWriter(p.getOutputStream(), "UTF-8");
+        // #3) Launch Graphviz. Harvest output.
+        final Process p = pb.start();
+        final BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        final Writer out = new OutputStreamWriter(p.getOutputStream(), "UTF-8");
         try {
             out.write(diagram);
             out.close();
 
             String line = null;
-            while((line = in.readLine()) != null) {
+            while ((line = in.readLine()) != null) {
                 System.err.println(line);
             }
         } finally {
@@ -145,7 +190,7 @@ public class Graphviz {
                 // Shouldn't happen.
             }
 
-            for (;;) {
+            for (; ; ) {
                 try {
                     int result = p.waitFor();
                     if (result != 0) {
@@ -159,19 +204,21 @@ public class Graphviz {
         }
     }
 
-    private static String getExecutable(RootDoc root) {
+    //
+    // Private helpers
+    //
+
+    private static String getExecutable(final RootDoc root) {
+
         String command = "dot";
 
         try {
             String osName = System.getProperty("os.name");
             if (osName != null && osName.indexOf("Windows") >= 0) {
+
+                // The Windows executable is called 'dot.exe' instead of 'dot'
                 File path = Graphviz.getHome(root);
-                if (path != null) {
-                    command = path.getAbsolutePath() + File.separator
-                            + "dot.exe";
-                } else {
-                    command = "dot.exe";
-                }
+                command = path != null ? path.getAbsolutePath() + File.separator + "dot.exe" : "dot.exe";
             }
         } catch (Exception e) {
             // ignore me!
@@ -179,54 +226,57 @@ public class Graphviz {
         return command;
     }
 
-    private static File getHome(RootDoc root) {
+    private static File getHome(final RootDoc root) {
+
+        // Already done?
         if (homeDetermined) {
             return home;
         }
 
-        File graphvizDir = null;
+        File toReturn = null;
+
         try {
-            String graphvizHome = System.getProperty("graphviz.home");
+
+            // #1) Attempt to find the Graphviz directory from a System property
+            String graphvizHome = System.getProperty(HOMEDIR_SYSTEM_PROPERTY);
             if (graphvizHome != null) {
-                root.printNotice(
-                        "Using the 'graphviz.home' system property: " +
-                        graphvizHome);
+                root.printNotice("Graphviz found using the '" + HOMEDIR_SYSTEM_PROPERTY
+                        + "' system property: " + graphvizHome);
             } else {
-                root.printNotice(
-                        "The 'graphviz.home' system property was not specified.");
+                root.printNotice("The '" + HOMEDIR_SYSTEM_PROPERTY + "' system property was not specified.");
 
-                graphvizHome = System.getenv("GRAPHVIZ_HOME");
+                // #2) Attempt to find the Graphviz directory from an environment property
+                graphvizHome = System.getenv(HOMEDIR_ENV_PROPERTY);
                 if (graphvizHome != null) {
-                    root.printNotice(
-                            "Using the 'GRAPHVIZ_HOME' environment variable: " +
-                            graphvizHome);
+                    root.printNotice("Graphviz found using the '" + HOMEDIR_ENV_PROPERTY + "' environment variable: "
+                            + graphvizHome);
                 } else {
-                    root.printNotice(
-                            "The 'GRAPHVIZ_HOME' environment variable was not specified.");
-                }
-            }
-            if (graphvizHome != null) {
-                graphvizDir = new File(graphvizHome);
-                if (!graphvizDir.exists() || !graphvizDir.isDirectory()) {
-                    root.printWarning(
-                            "The specified graphviz home directory does not exist: " +
-                            graphvizDir.getPath());
-                    graphvizDir = null;
+                    root.printNotice("The '" + HOMEDIR_ENV_PROPERTY + "' environment variable was not specified.");
                 }
             }
 
-            if (graphvizDir == null) {
-                root.printNotice(
-                        "System path will be used as graphviz home directory was not specified.");
+            // Check sanity
+            if (graphvizHome != null) {
+                toReturn = new File(graphvizHome);
+                if (!toReturn.exists() || !toReturn.isDirectory()) {
+                    root.printWarning("The specified graphviz home directory does not exist: "
+                            + toReturn.getPath());
+                    toReturn = null;
+                }
+            }
+
+            if (toReturn == null) {
+                root.printNotice("System path will be used as graphviz home directory was not specified.");
             }
         } catch (Exception e) {
             // ignore...
         }
-        homeDetermined = true;
-        return home = graphvizDir;
-    }
 
-    private Graphviz() {
-        // Unused
+        // Cache the Graphviz home directory.
+        homeDetermined = true;
+        home = toReturn;
+
+        // All Done.
+        return toReturn;
     }
 }

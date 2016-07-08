@@ -22,28 +22,50 @@
  */
 package org.jboss.apiviz;
 
-import com.sun.javadoc.*;
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.Doc;
+import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.RootDoc;
+import com.sun.javadoc.SeeTag;
+import com.sun.javadoc.Tag;
 import jdepend.framework.JDepend;
 import jdepend.framework.JavaPackage;
+import se.jguru.javadoc.apiviz.model.DocletModel;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import static org.jboss.apiviz.Constant.*;
-import static org.jboss.apiviz.EdgeType.*;
+import static org.jboss.apiviz.EdgeType.AGGREGATION;
+import static org.jboss.apiviz.EdgeType.COMPOSITION;
+import static org.jboss.apiviz.EdgeType.DEPENDENCY;
+import static org.jboss.apiviz.EdgeType.GENERALIZATION;
+import static org.jboss.apiviz.EdgeType.NAVIGABILITY;
+import static org.jboss.apiviz.EdgeType.REALIZATION;
+import static org.jboss.apiviz.EdgeType.SEE_ALSO;
 
 /**
  * @author The APIviz Project (apiviz-dev@lists.jboss.org)
  * @author Trustin Lee (tlee@redhat.com)
- *
  */
 public class ClassDocGraph {
 
+    private DocletModel model;
     final RootDoc root;
     private final Map<String, ClassDoc> nodes = new TreeMap<String, ClassDoc>();
     private final Map<ClassDoc, Set<Edge>> edges = new HashMap<ClassDoc, Set<Edge>>();
     private final Map<ClassDoc, Set<Edge>> reversedEdges = new HashMap<ClassDoc, Set<Edge>>();
-    private int nonconfiguredCategoryCount = 0;
+    private int nonConfiguredCategoryCount = 0;
 
     /**
      * Key = category name<br>
@@ -51,8 +73,9 @@ public class ClassDocGraph {
      */
     private final Map<String, CategoryOptions> categories = new HashMap<String, CategoryOptions>();
 
-    public ClassDocGraph(RootDoc root) {
+    public ClassDocGraph(final RootDoc root, final DocletModel model) {
         this.root = root;
+        this.model = model;
 
         //get the colors for the categories
         for (final String[] option : root.options()) {
@@ -65,9 +88,8 @@ public class ClassDocGraph {
                     }
                     addCategory(split[0], split[1], lineColor);
                 } else {
-                    root.printWarning("Bad " + OPTION_CATEGORY +
-                            ", Ignoring.  Use format '" + OPTION_CATEGORY +
-                            " <category>[:<fillcolor>[:linecolor]]'");
+                    root.printWarning("Bad " + OPTION_CATEGORY + ", Ignoring.  Use format '"
+                            + OPTION_CATEGORY + " <category>[:<fillcolor>[:linecolor]]'");
                 }
             }
         }
@@ -418,9 +440,9 @@ public class ClassDocGraph {
         //check the if the category for this class exists
         if (node.tags(TAG_CATEGORY).length > 0 && !categories.containsKey(node.tags(TAG_CATEGORY)[0].text())) {
             final String categoryName = node.tags(TAG_CATEGORY)[0].text();
-            if (ColorCombination.values().length > nonconfiguredCategoryCount) {
-                categories.put(categoryName, new CategoryOptions(categoryName, ColorCombination.values()[nonconfiguredCategoryCount]));
-                nonconfiguredCategoryCount++;
+            if (ColorCombination.values().length > nonConfiguredCategoryCount) {
+                categories.put(categoryName, new CategoryOptions(categoryName, ColorCombination.values()[nonConfiguredCategoryCount]));
+                nonConfiguredCategoryCount++;
             } else {
                 categories.put(categoryName, new CategoryOptions(categoryName, "#FFFFFF", null));
             }

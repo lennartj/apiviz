@@ -22,7 +22,24 @@
  */
 package org.jboss.apiviz;
 
-import com.sun.javadoc.*;
+import com.sun.javadoc.AnnotatedType;
+import com.sun.javadoc.AnnotationDesc;
+import com.sun.javadoc.AnnotationTypeDoc;
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.ConstructorDoc;
+import com.sun.javadoc.Doc;
+import com.sun.javadoc.FieldDoc;
+import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.ParamTag;
+import com.sun.javadoc.ParameterizedType;
+import com.sun.javadoc.RootDoc;
+import com.sun.javadoc.SeeTag;
+import com.sun.javadoc.SourcePosition;
+import com.sun.javadoc.Tag;
+import com.sun.javadoc.Type;
+import com.sun.javadoc.TypeVariable;
+import com.sun.javadoc.WildcardType;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -31,7 +48,6 @@ import java.lang.reflect.Proxy;
 /**
  * @author The APIviz Project (apiviz-dev@lists.jboss.org)
  * @author Trustin Lee (tlee@redhat.com)
- *
  */
 public class Edge implements Comparable<Edge> {
 
@@ -188,7 +204,7 @@ public class Edge implements Comparable<Edge> {
         if (target == null) {
             throw new IllegalArgumentException(
                     "Invalid relationship syntax: " + spec +
-                    " (Unknown package or class name)");
+                            " (Unknown package or class name)");
         }
 
         hashCode = calculateHashCode();

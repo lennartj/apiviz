@@ -22,8 +22,8 @@
  */
 package org.jboss.apiviz;
 
+import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -31,18 +31,21 @@ import static org.junit.Assert.*;
  */
 public class GraphvizTest {
 
-    public GraphvizTest() {
-    }
+    // Shared state
+    private String[] executableFirstLines = {
+
+            // MacBook version
+            "dot - graphviz version 2.22.2 (20090313.1817)",
+
+            // Linux desktop version
+            "dot - Graphviz version 2.16 (Fri Feb  8 12:52:03 UTC 2008)"
+    };
 
     @Test
     public void testExecutableRegularExpression() {
-        //on my macbook
-        assertTrue("dot - graphviz version 2.22.2 (20090313.1817)"
-                .matches(Graphviz.GRAPHVIZ_EXECUTABLE_FIRST_LINE_CHECK));
 
-        //on my linux desktop
-        assertTrue("dot - Graphviz version 2.16 (Fri Feb  8 12:52:03 UTC 2008)"
-                .matches(Graphviz.GRAPHVIZ_EXECUTABLE_FIRST_LINE_CHECK));
+        for(String currentFirstLine : executableFirstLines) {
+            Assert.assertTrue(currentFirstLine.matches(Graphviz.GRAPHVIZ_EXECUTABLE_FIRST_LINE_CHECK));
+        }
     }
-
 }

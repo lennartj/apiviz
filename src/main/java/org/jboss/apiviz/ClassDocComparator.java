@@ -27,57 +27,85 @@ import com.sun.javadoc.ClassDoc;
 import java.util.Comparator;
 
 /**
+ * Comparator implementation for ClassDoc instances, which takes layout orientation into account.
+ *
  * @author The APIviz Project (apiviz-dev@lists.jboss.org)
  * @author Trustin Lee (tlee@redhat.com)
- *
  */
 class ClassDocComparator implements Comparator<ClassDoc> {
 
-    private final boolean portrait;
+    private final boolean isPortraitOrientation;
 
-    ClassDocComparator(boolean portrait) {
-        this.portrait = portrait;
+    /**
+     * Creates a new ClassDocComparator using the supplied layout orientation.
+     *
+     * @param isPortraitOrientation if true, portrait orientation is used.
+     */
+    ClassDocComparator(final boolean isPortraitOrientation) {
+        this.isPortraitOrientation = isPortraitOrientation;
     }
 
-    public int compare(ClassDoc a, ClassDoc b) {
-        int precedenceDiff = getPrecedence(a) - getPrecedence(b);
-        if (precedenceDiff != 0) {
-            if (portrait) {
-                return -precedenceDiff;
-            } else {
-                return precedenceDiff;
-            }
+    /**
+     * {@inheritDoc}
+     */
+    public int compare(final ClassDoc left, final ClassDoc right) {
+
+        // Calculate the natural sort order between the supplied ClassDocs
+        final int typeDifference = getNaturalSortOrder(left) - getNaturalSortOrder(right);
+
+        // Different types?
+        if (typeDifference != 0) {
+            return isPortraitOrientation ? -typeDifference : typeDifference;
         }
 
-        if (portrait) {
-            return a.name().compareTo(b.name());
-        } else {
-            return b.name().compareTo(a.name());
-        }
+        // Fallback to comparing the names of the ClassDocs given.
+        return isPortraitOrientation ? left.name().compareTo(right.name()) : right.name().compareTo(left.name());
     }
 
-    private static int getPrecedence(ClassDoc c) {
-        if (c.isAnnotationType()) {
+    //
+    // Private helpers
+    //
+
+    /**
+     * Retrieves the normal/natural sort order between ClassDocs, which are assumed to be sorted as follows:
+     *
+     * <ol>
+     *     <li>Annotations</li>
+     *     <li>Enums</li>
+     *     <li>Static Classes</li>
+     *     <li>Interfaces</li>
+     *     <li>Abstract types</li>
+     *     <li>All other types</li>
+     *     <li>Errors / Exceptions</li>
+     * </ol>
+     *
+     * @param classDoc A non-null ClassDoc instance.
+     * @return
+     */
+    @SuppressWarnings("all")
+    private static int getNaturalSortOrder(final ClassDoc classDoc) {
+
+        if (classDoc.isAnnotationType()) {
             return 0;
         }
 
-        if (c.isEnum()) {
+        if (classDoc.isEnum()) {
             return 1;
         }
 
-        if (ClassDocGraph.isStaticType(c)) {
+        if (ClassDocGraph.isStaticType(classDoc)) {
             return 2;
         }
 
-        if (c.isInterface()) {
+        if (classDoc.isInterface()) {
             return 3;
         }
 
-        if (c.isAbstract()) {
+        if (classDoc.isAbstract()) {
             return 4;
         }
 
-        if (c.isError() || c.isException()) {
+        if (classDoc.isError() || classDoc.isException()) {
             return 100;
         }
 

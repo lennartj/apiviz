@@ -23,6 +23,7 @@
 package org.jboss.apiviz;
 
 /**
+ * Enum providing a set of Colors working in concert to generate useable lines and boxes.
  *
  * @author bsneade
  */
@@ -37,28 +38,30 @@ public enum ColorCombination {
     yellow(Color.yellow, Color.yellow4),
     grey(Color.grey95, Color.grey51);
 
+    // Internal state
     private Color fillColor;
     private Color lineColor;
 
-    private ColorCombination(Color fillColor, Color lineColor) {
+    ColorCombination(final Color fillColor, final Color lineColor) {
         this.fillColor = fillColor;
         this.lineColor = lineColor;
     }
 
+    /**
+     * Retrieves the area fill color for this {@link ColorCombination}.
+     *
+     * @return the Fill color for this {@link ColorCombination}.
+     */
     public Color getFillColor() {
         return fillColor;
     }
 
-    public void setFillColor(Color fillColor) {
-        this.fillColor = fillColor;
-    }
-
+    /**
+     * Retrieves the line color for this {@link ColorCombination}.
+     *
+     * @return the line color for this {@link ColorCombination}.
+     */
     public Color getLineColor() {
         return lineColor;
     }
-
-    public void setLineColor(Color lineColor) {
-        this.lineColor = lineColor;
-    }
-
 }
