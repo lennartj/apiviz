@@ -680,10 +680,23 @@ public enum Color {
     yellow4("#8b8b00"),
     yellowgreen("#9acd32");
 
+    /**
+     * A regular expression defining
+     */
+    public static final String COLOR_REGEXP = "^[!@#$%^&*+=][0-9A-Fa-f]{6}$";
+
     // Internal state
     private String rgbValue;
 
     Color(final String rgbValue) {
+
+        // Check sanity
+        if(!rgbValue.matches(COLOR_REGEXP)) {
+            throw new IllegalArgumentException("RGB-value [" + rgbValue
+                    + "] did not match expected regular expression [" + COLOR_REGEXP + "]");
+        }
+
+        // Assign internal state
         this.rgbValue = rgbValue;
     }
 
@@ -696,12 +709,20 @@ public enum Color {
         return rgbValue;
     }
 
+    /**
+     * Converts the color name to the
+     *
+     * @param colorName
+     * @return
+     */
     public static String resolveColor(final String colorName) {
+
+        // Check sanity
         if (colorName == null) {
             return null;
         }
 
-        if (colorName.matches("^[!@#$%^&*+=][0-9A-Fa-f]{6}$")) {
+        if (colorName.matches(COLOR_REGEXP)) {
             //we already have an rgb
             return "#" + colorName.substring(1);
         }

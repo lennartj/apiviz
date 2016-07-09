@@ -22,8 +22,9 @@
 package se.jguru.javadoc.apiviz;
 
 /**
- * Enumeration containing definitions of APIViz JavaDoc Tags. All tags have the prefix {@code apiviz}, to remain
- * backwards compatible with the original code from the JBoss project.
+ * Enumeration containing definitions of APIViz custom JavaDoc Tags.
+ * All tags have the prefix {@code apiviz}, to remain backwards compatible with the original
+ * code from the JBoss project. Therefore, the tags typically have the form {@code apiviz.uses}.
  *
  * @author <a href="mailto:lj@jguru.se">Lennart J&ouml;relid</a>, jGuru Europe AB
  */
@@ -32,12 +33,12 @@ public enum JavaDocTag {
     /**
      * apiviz.stereotype (name)
      */
-    STEREOTYPE(null, "<name>"),
+    STEREOTYPE("<name>"),
 
     /**
      * apiviz.uses (FQCN) [(sourceLabel) (targetLabel) [(edgeLabel)]]
      */
-    USES(null, "<FQCN> [<sourceLabel> <targetLabel> [<edgeLabel>]]"),
+    USES("<FQCN> [<sourceLabel> <targetLabel> [<edgeLabel>]]"),
 
     /**
      * apiviz.has (FQCN) [oneway] [(sourceLabel) (targetLabel) [(edgeLabel)]]
@@ -45,12 +46,12 @@ public enum JavaDocTag {
      * <p><strong>TODO</strong> change relationship spec to edgelabel sourcelabel targetlabel<br/>
      * Split apiviz.has into two tags</p>
      */
-    HAS(null, "<FQCN> [oneway] [<sourceLabel> <targetLabel> [<edgeLabel>]]"),
+    HAS("<FQCN> [oneway] [<sourceLabel> <targetLabel> [<edgeLabel>]]"),
 
     /**
      * apiviz.owns (FQCN) [(sourceLabel) (targetLabel) [(edgeLabel)]]
      */
-    OWNS(null, "<FQCN> [<sourceLabel> <targetLabel> [<edgeLabel>]]"),
+    OWNS("<FQCN> [<sourceLabel> <targetLabel> [<edgeLabel>]]"),
 
     /**
      * apiviz.composedOf (FQCN) [(sourceLabel) (targetLabel) [(edgeLabel)]]
@@ -60,17 +61,17 @@ public enum JavaDocTag {
     /**
      * apiviz.landmark
      */
-    LANDMARK(null, ""),
+    LANDMARK(""),
 
     /**
      * apiviz.hidden
      */
-    HIDDEN(null, ""),
+    HIDDEN(""),
 
     /**
      * apiviz.exclude (regex)
      */
-    EXCLUDE(null, "<regex>"),
+    EXCLUDE("<regex>"),
 
     /**
      * apiviz.excludeSubtypes
@@ -80,12 +81,12 @@ public enum JavaDocTag {
     /**
      * apiviz.inherit
      */
-    INHERIT(null, ""),
+    INHERIT(""),
 
     /**
      * apiviz.category (categoryname)
      */
-    CATEGORY(null, "<categoryName>");
+    CATEGORY("<categoryName>");
 
     // Internal state
     private String nonstandardTagSuffix;

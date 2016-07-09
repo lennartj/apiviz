@@ -24,10 +24,16 @@ package org.jboss.apiviz;
 
 import com.sun.javadoc.RootDoc;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 /**
- * Utility class to wrap Graphviz operations.
+ * Utility class to wrap Graphviz operations, by launching and handling the "dot" executable.
  *
  * @author The APIviz Project (apiviz-dev@lists.jboss.org)
  * @author Trustin Lee (tlee@redhat.com)
@@ -48,6 +54,11 @@ public final class Graphviz {
      * The environment key defining the graphviz home.
      */
     public static final String HOMEDIR_ENV_PROPERTY = "GRAPHVIZ_HOME";
+
+    /**
+     * Charset used by Graphviz to write the resulting files.
+     */
+    public static final String DOT_STANDARD_CHARSET = "UTF-8";
 
     private static boolean homeDetermined;
     private static File home;
@@ -71,7 +82,7 @@ public final class Graphviz {
         String executable = Graphviz.getExecutable(root);
         File home = Graphviz.getHome(root);
 
-        // #2) Fire Graphviz and determine its version.
+        // #2) Fire dot and determine its version.
         ProcessBuilder pb = new ProcessBuilder(executable, "-V");
         pb.redirectErrorStream(true);
         if (home != null) {
@@ -132,18 +143,24 @@ public final class Graphviz {
     }
 
     /**
-     * Creates and writes PNG and MAP files from Graphviz.
+     * <p>Creates and writes PNG and HTML imagemap files by executing 'dot', with the following arguments:</p>
+     * <pre>
+     *     <code>
+     *         dot -Tcmapx -o [outputDir/filename].map -Tpng -o [outputDir/filename].png
+     *     </code>
+     * </pre>
+     * <p>The {@code diagram} string is fed to the dot process.</p>
      *
      * @param root            The active {@link RootDoc} instance.
-     * @param diagram         The diagram data to write.
-     * @param outputDirectory
-     * @param filename
-     * @throws IOException
+     * @param diagram         The diagram (i.e. digraph) data to feed into the dot program. Source of the graphs.
+     * @param outputDirectory The directory where the result should be sent.
+     * @param filename        The filename of the PNG and MAP files generated.
+     * @throws IOException If the files could not be properly generated.
      */
     public static void writeImageAndMap(final RootDoc root,
-                                        final String diagram,
-                                        final File outputDirectory,
-                                        final String filename) throws IOException {
+            final String diagram,
+            final File outputDirectory,
+            final String filename) throws IOException {
 
         // TODO: Check inbound arguments for sanity? (nulls, existence etc)
 
@@ -168,7 +185,7 @@ public final class Graphviz {
         // #3) Launch Graphviz. Harvest output.
         final Process p = pb.start();
         final BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        final Writer out = new OutputStreamWriter(p.getOutputStream(), "UTF-8");
+        final Writer out = new OutputStreamWriter(p.getOutputStream(), DOT_STANDARD_CHARSET);
         try {
             out.write(diagram);
             out.close();

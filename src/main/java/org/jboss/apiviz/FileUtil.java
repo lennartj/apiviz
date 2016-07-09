@@ -43,12 +43,14 @@ public class FileUtil {
     public static final String DEFAULT_CHARSET = "ISO-8859-1";
 
     /**
-     * Reads and returns all content within the supplied file
-     * @param file
-     * @return
+     * Reads and returns all content within the supplied file.
+     *
+     * @param file a non-null File.
+     * @return the string
      * @throws IOException
      */
     public static String readFile(final File file) throws IOException {
+
         byte[] byteContent;
         RandomAccessFile in = new RandomAccessFile(file, "r");
         try {

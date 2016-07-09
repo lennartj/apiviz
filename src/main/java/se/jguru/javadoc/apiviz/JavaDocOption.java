@@ -47,6 +47,12 @@ public enum JavaDocOption {
             + "with @apiviz.category"),
 
     /**
+     * The option {@code -sourceclasspath (commaSeparatedPathlist)} indicates where source
+     * class files should be found.
+     */
+    OUTPUT_DIAGRAM("-printdiagrams", 0, "Prints the generated Graphviz diagram files"),
+
+    /**
      * The option {@code -help}
      */
     HELP("-help", 0, null);

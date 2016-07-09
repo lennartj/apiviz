@@ -60,7 +60,27 @@ public class Edge implements Comparable<Edge> {
     private final boolean oneway;
     private final int hashCode;
 
-    public Edge(EdgeType type, Doc source, Doc target) {
+    /**
+     * Creates a new Edge of the supplied type, between a source and a target Doc.
+     *
+     * @param type   The {@link EdgeType} of this Edge
+     * @param source The source Doc.
+     * @param target The target Doc.
+     */
+    public Edge(final EdgeType type, final Doc source, final Doc target) {
+
+        // Check sanity
+        if(type == null) {
+            throw new NullPointerException("Cannot handle null 'type' EdgeType argument.");
+        }
+        if(source == null) {
+            throw new NullPointerException("Cannot handle null 'source' Doc argument.");
+        }
+        if(target == null) {
+            throw new NullPointerException("Cannot handle null 'target' Doc argument.");
+        }
+
+        // Assign internal state
         this.type = type;
         this.source = source;
         this.target = target;
@@ -108,8 +128,8 @@ public class Edge implements Comparable<Edge> {
 
         if (args.length == 1) {
             if (rootDoc.classNamed(args[0]) == null) {
-                //Set up a mock ClassDoc incase we can not find the referenced class in the classpath.
-                // - This was needed because when doing a non-agrigating javadoc in maven the sibling
+                //Set up a mock ClassDoc in case we can not find the referenced class in the classpath.
+                // - This was needed because when doing a non-aggregating javadoc in maven the sibling
                 //   project's packages are not included.
                 // - Also, I apologize for this nested class mess
                 final InvocationHandler handler = new InvocationHandler() {

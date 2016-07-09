@@ -47,6 +47,8 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static se.jguru.javadoc.apiviz.model.DocletModel.CLASSPATH_ARGUMENT;
+
 
 /**
  * API visualization entry point.
@@ -78,12 +80,13 @@ public class APIviz {
             return true;
         }
 
-        final DocletModel docletModel = new DocletModel(root.options());
+        // Create a DocletModel
+        final DocletModel docletModel = new DocletModel(root.options(), root);
 
         try {
             final File outputDirectory = docletModel.getOutputDirectory();
 
-            ClassDocGraph graph = new ClassDocGraph(root);
+            ClassDocGraph graph = new ClassDocGraph(root, docletModel);
             if (docletModel.generatePackageDiagram()) {
                 generateOverviewSummary(root, graph, docletModel);
             }
@@ -122,13 +125,13 @@ public class APIviz {
 
                         // 1: Find the classpath snippets from the argument to this JavaDocOption
                         for (String currentSourceClasspath : JavaDocOption.optionArguments(current)) {
-                            classPath.addAll(APIvizDoclet.splitAndConvert(currentSourceClasspath));
+                            classPath.addAll(DocletModel.splitAndConvert(currentSourceClasspath));
                         }
 
                         // 2: Find the classpath snippets from the '-classpath' argument
                         for (String[] inner : options) {
                             if (CLASSPATH_ARGUMENT.equals(inner[0]) && inner.length >= 2) {
-                                classPath.addAll(APIvizDoclet.splitAndConvert(inner[1]));
+                                classPath.addAll(DocletModel.splitAndConvert(inner[1]));
                             }
                         }
 
@@ -215,8 +218,8 @@ public class APIviz {
     }
 
     public static void generateOverviewSummary(final RootDoc root,
-                                               final ClassDocGraph graph,
-                                               final DocletModel model) throws IOException {
+            final ClassDocGraph graph,
+            final DocletModel model) throws IOException {
         final Map<String, PackageDoc> packages = getPackages(root);
 
         PackageFilter packageFilter = PackageFilter.all();
@@ -249,10 +252,9 @@ public class APIviz {
                     root, model.getOutputDirectory(), "overview-summary",
                     graph.getOverviewSummaryDiagram(jdepend));
         } else {
-            root.printWarning("Please make sure that the '" + OPTION_SOURCE_CLASS_PATH
-                    + "' option was specified correctly.");
-            root.printWarning("Package dependency diagram will not be generated "
-                    + "to avoid the inaccurate result.");
+            root.printWarning("Please make sure that the '"
+                    + JavaDocOption.SOURCE_CLASSPATH.getOption() + "' option was specified correctly.");
+            root.printWarning("Package dependency diagram will not be generated to avoid the inaccurate result.");
         }
     }
 
@@ -298,8 +300,8 @@ public class APIviz {
     }
 
     public static void generatePackageSummaries(final RootDoc root,
-                                                final ClassDocGraph graph,
-                                                final File outputDirectory) throws IOException {
+            final ClassDocGraph graph,
+            final File outputDirectory) throws IOException {
 
         for (PackageDoc p : getPackages(root).values()) {
             instrumentDiagram(root,
@@ -310,8 +312,9 @@ public class APIviz {
     }
 
     public static void generateClassDiagrams(final RootDoc root,
-                                             final ClassDocGraph graph,
-                                             final File outputDirectory) throws IOException {
+            final ClassDocGraph graph,
+            final File outputDirectory) throws IOException {
+
         for (ClassDoc c : root.classes()) {
             if (c.containingPackage() == null) {
                 instrumentDiagram(
@@ -343,9 +346,9 @@ public class APIviz {
     }
 
     private static void instrumentDiagram(final RootDoc root,
-                                          final File outputDirectory,
-                                          String filename,
-                                          final String diagram) throws IOException {
+            final File outputDirectory,
+            String filename,
+            final String diagram) throws IOException {
 
         // TODO - it would be nice to have a debug flag that would spit out the graphviz source as well
         //System.out.println(diagram);

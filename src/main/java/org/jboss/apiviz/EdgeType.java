@@ -41,11 +41,11 @@ public enum EdgeType {
     private final String arrowTail;
     private final boolean reversed;
 
-    private EdgeType(String arrowHead, String style, boolean reversed) {
+    EdgeType(String arrowHead, String style, boolean reversed) {
         this(arrowHead, style, "none", reversed);
     }
 
-    private EdgeType(String arrowHead, String style, String arrowTail, boolean reversed) {
+    EdgeType(String arrowHead, String style, String arrowTail, boolean reversed) {
         this.arrowHead = arrowHead;
         this.style = style;
         this.arrowTail = arrowTail;
