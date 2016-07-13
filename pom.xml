@@ -19,12 +19,14 @@
         It generates comprehensive UML-like class and package diagrams
         that help the quick understanding of the overall API structure.
     </description>
-    <url>https://github.com/grahamedgecombe/apiviz</url>
+
+    <url>https://github.com/lennartj/apiviz</url>
     <inceptionYear>2008</inceptionYear>
     <organization>
         <name>JBoss - a division of Red Hat</name>
         <url>http://www.jboss.org/</url>
     </organization>
+
     <licenses>
         <license>
             <name>GNU Lesser General Public License</name>
@@ -32,11 +34,24 @@
         </license>
     </licenses>
 
+    <properties>
+        <antlr.version>4.5.3</antlr.version>
+        <java.version>1.8</java.version>
+    </properties>
+
     <developers>
         <developer>
             <name>Graham Edgecombe</name>
             <email>gpe@grahamedgecombe.com</email>
             <url>https://grahamedgecombe.com</url>
+        </developer>
+        <developer>
+            <name>Lennart Jörelid</name>
+            <email>lj@jguru.se</email>
+            <roles>
+                <role>Committer</role>
+            </roles>
+            <timezone>+1</timezone>
         </developer>
     </developers>
 
@@ -51,6 +66,17 @@
     </scm>
 
     <dependencies>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4</artifactId>
+            <version>${antlr.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr.version}</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>com.sun</groupId>
             <artifactId>tools</artifactId>
@@ -74,13 +100,30 @@
 
     <build>
         <plugins>
+            <!--
+                Use ANTLRv4 to generate a Parser and Lexer from the DOT.g4 grammar file.
+                The generated files are used to parse and generate well-formed Graphviz/dot diagram files.
+            -->
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>${antlr.version}</version>
+                <executions>
+                    <execution>
+                        <id>antlr</id>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.3</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -105,9 +148,7 @@
                         <link>https://docs.oracle.com/javase/8/docs/jdk/api/javadoc/doclet/</link>
                     </links>
                     <breakiterator>true</breakiterator>
-                    <additionalparam>
-                        -sourceclasspath ${project.build.outputDirectory}
-                    </additionalparam>
+                    <additionalparam>-sourceclasspath ${project.build.outputDirectory}</additionalparam>
                 </configuration>
             </plugin>
         </plugins>

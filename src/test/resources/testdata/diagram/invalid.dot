@@ -1,0 +1,8 @@
+digraph "invalidDiagram" {
+
+    "foo";
+    "bar";
+    "blah";
+
+    "foo" --> "bar" --> "blah";
+}
