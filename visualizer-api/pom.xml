@@ -1,0 +1,696 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ #%L
+  ~ Nazgul Project: nazgul-tools-codestyle
+  ~ %%
+  ~ Copyright (C) 2010 - 2015 jGuru Europe AB
+  ~ %%
+  ~ Licensed under the jGuru Europe AB license (the "License"), based
+  ~ on Apache License, Version 2.0; you may not use this file except
+  ~ in compliance with the License.
+  ~
+  ~ You may obtain a copy of the License at
+  ~
+  ~        http://www.jguru.se/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~ #L%
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+    ################################################
+    # Section 1:  Project information
+    ################################################
+    -->
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
+
+    <groupId>se.jguru.visualizer.api</groupId>
+    <artifactId>visualizer-api</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>${project.artifactId}</name>
+    <packaging>jar</packaging>
+    <url>${site.top.url}/${path.in.reactor}</url>
+    <description>Visualizer API (JAR, version ${project.version})</description>
+
+    <inceptionYear>2016</inceptionYear>
+    <organization>
+        <name>jGuru Europe AB</name>
+        <url>https://www.jguru.se/</url>
+    </organization>
+
+    <prerequisites>
+        <maven>${maven.version}</maven>
+    </prerequisites>
+
+    <licenses>
+        <license>
+            <name>jGuru Europe Corporate Source License, based on The Apache Software License, Version 2.0</name>
+            <url>http://www.jguru.se/licenses/jguruCorporateSourceLicense-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <properties>
+        <!--
+            Define the URL prefixes for Site Deployment and DistributionManagement.
+            These can be overridden in sub-reactors to tailor releases to other locations.
+        -->
+        <reactor.name>nazgul_tools</reactor.name>
+        <path.in.reactor>codestyle</path.in.reactor>
+
+        <!--
+            Define URL prefixes used in the various URL settings of the POM.
+        -->
+        <github.global.server>nazgul_github</github.global.server>
+        <git.repo.owner>lennartj</git.repo.owner>
+        <git.repo.url.prefix>https://github.com/${git.repo.owner}</git.repo.url.prefix>
+        <git.scm.url.prefix>scm:git:ssh://git@github.com/${git.repo.owner}</git.scm.url.prefix>
+        <site.url.prefix>http://${git.repo.owner}.github.io</site.url.prefix>
+        <site.top.url>${site.url.prefix}/${reactor.name}/Documentation/${project.version}</site.top.url>
+
+        <scm.connection.url>scm:git:${git.repo.url.prefix}/${reactor.name}.git</scm.connection.url>
+        <scm.devConnection.url>${git.scm.url.prefix}/${reactor.name}.git</scm.devConnection.url>
+        <distroManagement.url>${site.top.url}/${path.in.reactor}</distroManagement.url>
+        <scm.url>${git.repo.url.prefix}/${reactor.name}.git</scm.url>
+        <!-- site.staging.localDirectory>/tmp/${reactor.name}/${project.version}</site.staging.localDirectory -->
+        <site.staging.localDirectory>/tmp/${reactor.name}</site.staging.localDirectory>
+
+        <maven.version>2.2.1</maven.version>
+        <enforcer.api.version>1.4.1</enforcer.api.version>
+        <cobertura.haltOnFailure>true</cobertura.haltOnFailure>
+        <jdk.version>1.7</jdk.version>
+
+        <!-- Code style properties -->
+        <cobertura.haltOnFailure>true</cobertura.haltOnFailure>
+        <pmd.plugin.version>3.5</pmd.plugin.version>
+        <cobertura.plugin.version>2.7</cobertura.plugin.version>
+        <checkstyle.plugin.version>2.16</checkstyle.plugin.version>
+        <checkstyle.header.java.file>codestyle/copyright/header_java.txt</checkstyle.header.java.file>
+        <findbugs.plugin.version>3.0.1</findbugs.plugin.version>
+        <clean.plugin.version>2.6.1</clean.plugin.version>
+
+        <!-- Site plugin properties -->
+        <maven-site-plugin.version>3.4</maven-site-plugin.version>
+        <doxia-modules.version>1.6</doxia-modules.version>
+        <wagon-modules.version>2.10</wagon-modules.version>
+        <versions-maven-plugin.version>2.1.4</versions-maven-plugin.version>
+    </properties>
+
+    <developers>
+        <developer>
+            <id>lj</id>
+            <name>Lennart Jörelid</name>
+            <email>lj@jguru.se</email>
+            <roles>
+                <role>Committer</role>
+            </roles>
+            <organization>jGuru Europe AB</organization>
+            <organizationUrl>http://www.jguru.se</organizationUrl>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <!--
+    ################################################
+    # Section 2:  Dependency (management) settings
+    ################################################
+    -->
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven.enforcer</groupId>
+            <artifactId>enforcer-api</artifactId>
+            <version>${enforcer.api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-project</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-artifact</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>${maven.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-container-default</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-plugin-testing-harness</artifactId>
+            <version>1.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!--
+    ################################################
+    # Section 3:  Build settings
+    ################################################
+    -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!--
+                    Use a working version of the Maven versions plugin.
+                    (TODO: Update the Codehaus versions plugin with the fine additions done by Lars.)
+
+                    Why:  Workaround for https://jira.codehaus.org/browse/MVERSIONS-236
+                    Used: Only when called.
+                -->
+                <plugin>
+                    <groupId>de.lgohlke.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>${versions-maven-plugin.version}</version>
+                </plugin>
+
+                <!--
+                    Upgrade the Compiler plugin to the latest version.
+
+                    Why:  Use the latest compiler plugin version for upwards JDK compliance.
+                    Used: For compiling all source code to binaries.
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.3</version>
+                    <configuration>
+                        <source>${jdk.version}</source>
+                        <target>${jdk.version}</target>
+                        <showWarnings>true</showWarnings>
+                        <showDeprecation>true</showDeprecation>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+
+                <!--
+                    Use the site-maven-plugin which works with GitHub site deployments.
+
+                    Why:  GitHub-based site deployment is done by committing into the branch gh-pages.
+                    Used: Only at release time.
+                -->
+                <plugin>
+                    <groupId>com.github.github</groupId>
+                    <artifactId>site-maven-plugin</artifactId>
+                    <version>0.12</version>
+                    <configuration>
+                        <message>Creating site for version ${project.version}</message>
+                        <noJekyll>true</noJekyll>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${cobertura.plugin.version}</version>
+                <configuration>
+                    <instrumentation>
+                        <includes>
+                            <include>se/jguru/nazgul/**/*.class</include>
+                        </includes>
+                        <excludes>
+                            <!-- Don't check Exception classes -->
+                            <exclude>se/jguru/nazgul/**/*Exception.class</exclude>
+                        </excludes>
+                    </instrumentation>
+                    <check>
+                        <branchRate>50</branchRate>
+                        <lineRate>80</lineRate>
+                        <haltOnFailure>${cobertura.haltOnFailure}</haltOnFailure>
+                    </check>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>clean</goal>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+                Compiles all source code to binaries.
+
+                Used: Standard build, mvn compile.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <!--
+                Configures the site plugin. Its use is further documented in the site documentation itself.
+
+                Why:  Make compile and publish the Nazgul documentation.
+                Used: Site lifecycle, mvn site.
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven-site-plugin.version}</version>
+                <executions combine.self="override">
+                    <execution>
+                        <id>attach-descriptor</id>
+                        <goals>
+                            <goal>attach-descriptor</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-deploy</id>
+                        <phase>site-deploy</phase>
+                        <goals>
+                            <goal />
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <topSiteURL>${site.url.prefix}/${reactor.name}</topSiteURL>
+                    <stagingSiteURL>${site.url.prefix}/${reactor.name}</stagingSiteURL>
+                    <stagingDirectory>${site.staging.localDirectory}</stagingDirectory>
+                    <generateSitemap>true</generateSitemap>
+                    <inputEncoding>${project.build.sourceEncoding}</inputEncoding>
+                    <outputEncoding>${project.reporting.outputEncoding}</outputEncoding>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.wagon</groupId>
+                        <artifactId>wagon-ssh</artifactId>
+                        <version>${wagon-modules.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.maven.wagon</groupId>
+                        <artifactId>wagon-file</artifactId>
+                        <version>${wagon-modules.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-module-markdown</artifactId>
+                        <version>${doxia-modules.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-module-xhtml</artifactId>
+                        <version>${doxia-modules.version}</version>
+                    </dependency>
+                    <!--
+                        Reflow skin and dependencies.
+
+                        These velocity tools should only be used if the
+                        reflow maven skin is used for site documentation.
+                    -->
+                    <!-- dependency>
+                        <groupId>lt.velykis.maven.skins</groupId>
+                        <artifactId>reflow-velocity-tools</artifactId>
+                        <version>${reflow-velocity-tools.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.velocity</groupId>
+                        <artifactId>velocity</artifactId>
+                        <version>${velocity.version}</version>
+                    </dependency -->
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.plugin.version}</version>
+                <configuration>
+                    <propertyExpansion>cacheFile=${project.build.directory}/checkstyle-cachefile</propertyExpansion>
+                    <configLocation>${project.build.outputDirectory}/codestyle/checkstyle.xml</configLocation>
+                    <failOnViolation>true</failOnViolation>
+                    <violationSeverity>error</violationSeverity>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>verify</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <goals>
+                            <goal>checkstyle</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs.plugin.version}</version>
+                <configuration>
+                    <threshold>Low</threshold>
+                    <effort>Max</effort>
+                    <onlyAnalyze>se.jguru.nazgul.codestyle.*</onlyAnalyze>
+                    <includeFilterFile>${project.build.outputDirectory}/codestyle/findbugs.xml</includeFilterFile>
+                    <excludeFilterFile>${project.build.outputDirectory}/codestyle/findbugs-excludes.xml
+                    </excludeFilterFile>
+                    <relaxed>false</relaxed>
+                    <!-- xmlOutput>true</xmlOutput -->
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!--
+
+                Configures the release plugin to use a custom release profile.
+
+                Why:  Release artifacts
+                Used: Normal lifecycle, release goal
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.2</version>
+                <configuration>
+                    <arguments>-Pnazgul-release</arguments>
+                    <mavenExecutorId>forked-path</mavenExecutorId>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <tagNameFormat>${reactor.name}-@{project.version}</tagNameFormat>
+                    <goals>deploy</goals>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.scm</groupId>
+                        <artifactId>maven-scm-providers-git</artifactId>
+                        <version>1.9.4</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+
+    <reporting>
+        <excludeDefaults>true</excludeDefaults>
+        <outputDirectory>${project.build.directory}/site</outputDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                    <stylesheet>java</stylesheet>
+                    <groups>
+                        <group>
+                            <title>Nazgul Framework: Tools Packages</title>
+                            <packages>se.jguru.nazgul.tools.*</packages>
+                        </group>
+                        <group>
+                            <title>Nazgul Framework: Core Packages</title>
+                            <packages>se.jguru.nazgul.core.*</packages>
+                        </group>
+                    </groups>
+                    <doclet>org.jboss.apiviz.APIviz</doclet>
+                    <docletArtifact>
+                        <groupId>org.jboss.apiviz</groupId>
+                        <artifactId>apiviz</artifactId>
+                        <version>1.3.2.GA</version>
+                    </docletArtifact>
+                    <useStandardDocletOptions>true</useStandardDocletOptions>
+                    <charset>${project.build.sourceEncoding}</charset>
+                    <charset>${project.build.sourceEncoding}</charset>
+                    <charset>${project.build.sourceEncoding}</charset>
+                    <breakiterator>true</breakiterator>
+                    <version>true</version>
+                    <author>true</author>
+                    <keywords>true</keywords>
+                    <additionalparam>-sourceclasspath ${project.build.outputDirectory}</additionalparam>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+
+            <!--
+                 Due to problems in the Maven 3 site plugin you must enter the configuration twice,
+                 once for the pluginManagement section and once for the site, see
+                 http://jira.codehaus.org/browse/MSITE-516 and http://jira.codehaus.org/browse/MSITE-523
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${pmd.plugin.version}</version>
+                <configuration>
+                    <rulesets>
+                        <ruleset>${project.build.outputDirectory}/codestyle/pmd-rules.xml</ruleset>
+                    </rulesets>
+                    <targetJdk>${jdk.version}</targetJdk>
+                    <sourceEncoding>UTF-8</sourceEncoding>
+                </configuration>
+            </plugin>
+            <!--
+                 Due to problems in the Maven 3 site plugin you must enter the configuration twice,
+                 once for the pluginManagement section and once for the site, see
+                 http://jira.codehaus.org/browse/MSITE-516 and http://jira.codehaus.org/browse/MSITE-523
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${checkstyle.plugin.version}</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <propertyExpansion>cacheFile=${project.build.directory}/checkstyle-cachefile</propertyExpansion>
+                    <configLocation>${project.build.outputDirectory}/codestyle/checkstyle.xml</configLocation>
+                    <failOnViolation>true</failOnViolation>
+                    <violationSeverity>error</violationSeverity>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>${cobertura.plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>cobertura</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <!--
+                 Due to problems in the Maven 3 site plugin you must enter the configuration twice,
+                 once for the pluginManagement section and once for the site, see
+                 http://jira.codehaus.org/browse/MSITE-516 and http://jira.codehaus.org/browse/MSITE-523
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${findbugs.plugin.version}</version>
+                <configuration>
+                    <threshold>High</threshold>
+                    <effort>Default</effort>
+                    <onlyAnalyze>se.jguru.nazgul.*</onlyAnalyze>
+                    <includeFilterFile>${project.build.outputDirectory}/codestyle/findbugs.xml</includeFilterFile>
+                    <excludeFilterFile>${project.build.outputDirectory}/codestyle/findbugs-excludes.xml
+                    </excludeFilterFile>
+                    <relaxed>false</relaxed>
+                    <findbugsXmlOutput>true</findbugsXmlOutput>
+                    <xmlOutput>true</xmlOutput>
+                </configuration>
+            </plugin>
+
+            <!--
+                    Use a working version of the Maven versions plugin.
+
+                    Why:  Workaround for https://jira.codehaus.org/browse/MVERSIONS-236
+                    Used: Only when called.
+                -->
+            <plugin>
+                <groupId>de.lgohlke.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin.version}</version>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <!--
+    ################################################
+    # Section 4:  External systems
+    ################################################
+    -->
+
+    <!--
+        Define the Continuous Build server address.
+    -->
+    <ciManagement>
+        <system>TravisCI</system>
+        <url>https://travis-ci.org/lennartj/nazgul_tools</url>
+    </ciManagement>
+
+    <!--
+        Define the issue management system.
+    -->
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/lennartj/nazgul_tools/issues</url>
+    </issueManagement>
+
+    <!--
+        Define repository settings for Maven's deploy and release plugins.
+        Move parts to settings.xml, as per recommendation within Maven specs.
+    -->
+    <distributionManagement>
+        <repository>
+            <id>ossrh-staging</id>
+            <name>Sonatype OSS Nexus: Releases</name>
+            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
+        <snapshotRepository>
+            <id>ossrh-snapshots</id>
+            <name>Sonatype OSS Nexus: Snapshots</name>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <site>
+            <id>github_site</id>
+            <name>GitHub Site for Nazgul Tools</name>
+            <url>${site.top.url}/${path.in.reactor}</url>
+        </site>
+    </distributionManagement>
+
+    <!--
+        Define connections for Maven's VCS integration.
+    -->
+    <scm>
+        <connection>${scm.connection.url}</connection>
+        <developerConnection>${scm.devConnection.url}</developerConnection>
+        <url>${scm.url}</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <!--
+    ################################################
+    # Section 5:  Profiles
+    ################################################
+    -->
+    <profiles>
+
+        <!--
+            Release profile for Nazgul Reactors.
+        -->
+        <profile>
+            <id>nazgul-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <updateReleaseInfo>true</updateReleaseInfo>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-jar-no-fork</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <failOnError>false</failOnError>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- plugin>
+                        <groupId>com.github.github</groupId>
+                        <artifactId>site-maven-plugin</artifactId>
+                        <configuration>
+                            <message>Creating site for version ${project.version}</message>
+                            <noJekyll>true</noJekyll>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>site</goal>
+                                </goals>
+                                <phase>site</phase>
+                            </execution>
+                        </executions>
+                    </plugin -->
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
